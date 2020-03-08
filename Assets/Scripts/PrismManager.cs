@@ -12,8 +12,9 @@ public class PrismManager : MonoBehaviour
     public float maxPrismScaleY = 5;
     public GameObject regularPrismPrefab;
     public GameObject irregularPrismPrefab;
-
-    private List<Prism> prisms = new List<Prism>();
+	
+	public KdTree<Prism> prisms = new KdTree<Prism>();
+    //private List<Prism> prisms = new List<Prism>();
     private List<GameObject> prismObjects = new List<GameObject>();
     private GameObject prismParent;
     private Dictionary<Prism,bool> prismColliding = new Dictionary<Prism, bool>();
@@ -96,6 +97,7 @@ public class PrismManager : MonoBehaviour
                     prismColliding[collision.b] = true;
 
                     ResolveCollision(collision);
+					prisms.UpdatePositions();
                 }
             }
 
@@ -106,18 +108,25 @@ public class PrismManager : MonoBehaviour
     #endregion
 
     #region Incomplete Functions
-
+	KdTree<Prism> newobj = new KdTree<Prism>();
     private IEnumerable<PrismCollision> PotentialCollisions()
-    {
-        for (int i = 0; i < prisms.Count; i++) {
-            for (int j = i + 1; j < prisms.Count; j++) {
-                var checkPrisms = new PrismCollision();
-                checkPrisms.a = prisms[i];
-                checkPrisms.b = prisms[j];
+    {	
+	
+	for (int i = 0 ; i < prisms.Count ; i++){
+				newobj.Clear();
+				//newobj.AddAll(prisms.Where((v, k) => k >= prisms[i]).ToList());
+				var x = prisms.FindClosest(prisms[i].transform.position);
+				print(x);
+				print(prisms[i]);
+				if(x.Equals(prisms[i])==false){
+				var setPrim = new PrismCollision{ a = prisms[i] , b = x}; 
+				Debug.DrawLine(prisms[i].transform.position, x.transform.position, Color.green);
 
-                yield return checkPrisms;
-            }
-        }
+			yield return setPrim;
+			}
+		
+		}
+		
 
         yield break;
     }
@@ -126,7 +135,7 @@ public class PrismManager : MonoBehaviour
     {
         var prismA = collision.a;
         var prismB = collision.b;
-
+		
         
         collision.penetrationDepthVectorAB = Vector3.zero;
 
@@ -147,6 +156,15 @@ public class PrismManager : MonoBehaviour
 
         prismObjA.transform.position += pushA;
         prismObjB.transform.position += pushB;
+
+        for (int i = 0; i < collision.a.pointCount; i++)
+        {
+            collision.a.points[i] += pushA;
+        }
+        for (int i = 0; i < collision.b.pointCount; i++)
+        {
+            collision.b.points[i] += pushB;
+        }
 
         Debug.DrawLine(prismObjA.transform.position, prismObjA.transform.position + collision.penetrationDepthVectorAB, Color.cyan, UPDATE_RATE);
     }
