@@ -1,0 +1,14 @@
+﻿<Properties StartupConfiguration="{5F5A418F-72BA-A1DA-A1F2-DCC496BDCB54}|">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/PrismManager.cs">
+    <Files>
+      <File FileName="Assets/Scripts/PrismManager.cs" Line="1" Column="1" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="Unity.Editor" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MultiItemStartupConfigurations />
+</Properties>

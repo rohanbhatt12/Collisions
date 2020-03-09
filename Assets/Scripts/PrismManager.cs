@@ -131,21 +131,94 @@ public class PrismManager : MonoBehaviour
         yield break;
     }
 
-    private bool CheckCollision(PrismCollision collision)
-    {
+    private bool CheckCollision(PrismCollision collision){
         var prismA = collision.a;
         var prismB = collision.b;
-		
-        
-        collision.penetrationDepthVectorAB = Vector3.zero;
+        List<Vector2> Simplex = new List<Vector2>();
+        int sizeOfList = Simplex.Count;
 
+        collision.penetrationDepthVectorAB = Vector3.zero;
         return true;
+
+        Vector2 getFarthestPointInDirection(Vector2 d) {
+            int index = 0;
+            double maxDot = (int)Vector2.Dot(Simplex[index], d);
+            if (Simplex != null)
+            {
+                for (int i = 1; i < sizeOfList; i++)
+                {
+                    int dot = (int)Vector2.Dot(Simplex[i], d);
+                    if (dot > maxDot)
+                    {
+                        maxDot = dot;
+                        index = i;
+                    }
+                }
+            }
+            return Simplex[index];
+        }
+        Vector2 support(Prism a, Prism b, Vector2 d){
+            // get points on the edge of the shapes in opposite directions
+            Vector2 p1 = a.getFarthestPointInDirection(d);
+            Vector2 p2 = b.getFarthestPointInDirection(new Vector2(-d.x, -d.y));
+
+            // Minkowski Difference
+            Vector2 p3 = new Vector2((p1 - p2).x, (p1 - p2).y);
+
+            // p3 is now a point in Minkowski space on the edge of the Minkowski Difference
+            return p3;
+        }
+
+        bool containsOrigin(ref Vector2 d){
+            Vector2 a = Simplex.Last();
+            Vector2 ao = new Vector2(-a.x, -a.y);
+            if (Simplex.Count() == 3){
+                support(prismA, prismB, d);
+                if((a.x == 0) && (a.y == 0) {
+                    return true;
+                }
+            }
+            return false;
+
+        }
+            bool IsCollide(Prism a, Prism b) {
+            Vector2 last = Simplex[sizeOfList - 1];
+            Vector2 dark = new Vector2(1, -1);
+            Simplex.Add(dark);
+            // negate d for the next point
+            Negate(dark);
+            // start looping
+            while (true)
+            {
+                // add a new point to the simplex because we haven't terminated yet
+                Simplex.Add(support(a, b, dark));
+                // make sure that the last point we added actually passed the origin
+                int dot6 = (int)Vector2.Dot(last, dark);
+                if (dot6 <= 0)
+                {
+                    // if the point added last was not past the origin in the direction of d
+                    // then the Minkowski Sum cannot possibly contain the origin since
+                    // the last point added is on the edge of the Minkowski Difference
+                    return false;
+                }
+                else
+                {
+                    if (containsOrigin(ref dark))
+                    {
+                        // if it does then we know there is a collision
+                        return true;
+                    }
+                }
+            }
+        }
+
+
     }
-    
+
     #endregion
 
     #region Private Functions
-    
+
     private void ResolveCollision(PrismCollision collision)
     {
         var prismObjA = collision.a.prismObject;
